@@ -101,6 +101,8 @@ def add_contact_line(doc, contact):
         items.append(contact["phone"])
     if contact.get("linkedin"):
         items.append(contact["linkedin"])
+    if contact.get("github"):
+        items.append(contact["github"])
     if contact.get("location"):
         items.append(contact["location"])
 

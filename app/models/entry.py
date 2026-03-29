@@ -7,6 +7,7 @@ class Contact(BaseModel):
     phone: str = Field(default="", max_length=50)
     email: str = Field(default="", max_length=200)
     linkedin: str = Field(default="", max_length=500)
+    github: str = Field(default="", max_length=500)
     location: str = Field(default="", max_length=200)
 
 
