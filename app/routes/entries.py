@@ -23,6 +23,8 @@ def _to_response(doc: dict) -> EntryResponse:
         company_name=doc["company_name"],
         resume=doc["resume"],
         cover_letter=doc["cover_letter"],
+        hidden_sections=doc.get("hidden_sections", {}),
+        section_order=doc.get("section_order", []),
         created_at=doc["created_at"],
         updated_at=doc["updated_at"],
     )

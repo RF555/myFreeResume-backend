@@ -21,6 +21,8 @@ async def create_entry(db: AsyncDatabase, user_id: str, job_type_id: str, compan
         "company_name": company_name,
         "resume": resume_data,
         "cover_letter": CoverLetterData().model_dump(),
+        "hidden_sections": {},
+        "section_order": ["skill_highlights", "experience", "education", "languages"],
         "created_at": now,
         "updated_at": now,
     }
@@ -96,6 +98,8 @@ async def clone_entry(db: AsyncDatabase, user_id: str, entry_id: str, target_job
         "company_name": company_name,
         "resume": deepcopy(source["resume"]),
         "cover_letter": deepcopy(source["cover_letter"]),
+        "hidden_sections": deepcopy(source.get("hidden_sections", {})),
+        "section_order": deepcopy(source.get("section_order", ["skill_highlights", "experience", "education", "languages"])),
         "created_at": now,
         "updated_at": now,
     }

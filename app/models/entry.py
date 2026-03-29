@@ -59,6 +59,8 @@ class EntryUpdate(BaseModel):
     company_name: str | None = None
     resume: ResumeData | None = None
     cover_letter: CoverLetterData | None = None
+    hidden_sections: dict | None = None
+    section_order: list[str] | None = None
 
 
 class EntryResponse(BaseModel):
@@ -67,6 +69,8 @@ class EntryResponse(BaseModel):
     company_name: str
     resume: ResumeData
     cover_letter: CoverLetterData
+    hidden_sections: dict = {}
+    section_order: list[str] = []
     created_at: datetime
     updated_at: datetime
 
