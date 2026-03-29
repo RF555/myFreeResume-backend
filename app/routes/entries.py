@@ -9,6 +9,7 @@ from app.services.entry_service import (
     delete_entry,
     get_entry,
     list_entries,
+    refresh_entry_from_profile,
     update_entry,
 )
 
@@ -77,4 +78,11 @@ async def clone(entry_id: str, data: CloneRequest, user: dict = Depends(get_curr
     doc = await clone_entry(
         db, str(user["_id"]), entry_id, data.job_type_id, data.company_name
     )
+    return _to_response(doc)
+
+
+@router.post("/api/entries/{entry_id}/refresh-from-profile", response_model=EntryResponse)
+async def refresh_from_profile(entry_id: str, user: dict = Depends(get_current_user)):
+    db = get_db()
+    doc = await refresh_entry_from_profile(db, str(user["_id"]), entry_id)
     return _to_response(doc)

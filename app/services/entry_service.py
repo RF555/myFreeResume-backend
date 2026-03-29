@@ -9,12 +9,17 @@ from app.models.entry import ResumeData, CoverLetterData
 
 
 async def create_entry(db: AsyncDatabase, user_id: str, job_type_id: str, company_name: str) -> dict:
+    user = await db.users.find_one({"_id": ObjectId(user_id)})
+    resume_data = deepcopy(user.get("resume_profile", {})) if user else ResumeData().model_dump()
+    if not resume_data:
+        resume_data = ResumeData().model_dump()
+
     now = datetime.now(timezone.utc)
     doc = {
         "user_id": user_id,
         "job_type_id": job_type_id,
         "company_name": company_name,
-        "resume": ResumeData().model_dump(),
+        "resume": resume_data,
         "cover_letter": CoverLetterData().model_dump(),
         "created_at": now,
         "updated_at": now,
@@ -64,6 +69,22 @@ async def delete_entry(db: AsyncDatabase, user_id: str, entry_id: str) -> None:
     )
     if result.deleted_count == 0:
         raise NotFoundError("Entry not found")
+
+
+async def refresh_entry_from_profile(db: AsyncDatabase, user_id: str, entry_id: str) -> dict:
+    user = await db.users.find_one({"_id": ObjectId(user_id)})
+    profile = deepcopy(user.get("resume_profile", {})) if user else {}
+    if not profile:
+        profile = ResumeData().model_dump()
+
+    result = await db.entries.find_one_and_update(
+        {"_id": ObjectId(entry_id), "user_id": user_id},
+        {"$set": {"resume": profile, "updated_at": datetime.now(timezone.utc)}},
+        return_document=True,
+    )
+    if not result:
+        raise NotFoundError("Entry not found")
+    return result
 
 
 async def clone_entry(db: AsyncDatabase, user_id: str, entry_id: str, target_job_type_id: str, company_name: str) -> dict:

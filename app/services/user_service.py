@@ -4,6 +4,7 @@ from bson import ObjectId
 from pymongo.asynchronous.database import AsyncDatabase
 
 from app.exceptions import ConflictError, NotFoundError
+from app.models.entry import ResumeData
 
 
 async def create_user(
@@ -23,6 +24,7 @@ async def create_user(
         "password_hash": password_hash,
         "name": name,
         "oauth_providers": oauth_providers or [],
+        "resume_profile": ResumeData().model_dump(),
         "created_at": now,
         "updated_at": now,
     }

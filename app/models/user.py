@@ -2,6 +2,8 @@ from datetime import datetime
 
 from pydantic import BaseModel, EmailStr
 
+from app.models.entry import ResumeData
+
 
 class OAuthProvider(BaseModel):
     provider: str
@@ -24,8 +26,13 @@ class UserResponse(BaseModel):
     email: str
     name: str
     oauth_providers: list[OAuthProvider] = []
+    has_resume_profile: bool = False
     created_at: datetime
     updated_at: datetime
+
+
+class ResumeProfileResponse(BaseModel):
+    resume_profile: ResumeData
 
 
 class UserInDB(BaseModel):
@@ -33,5 +40,6 @@ class UserInDB(BaseModel):
     password_hash: str | None = None
     name: str
     oauth_providers: list[OAuthProvider] = []
+    resume_profile: ResumeData = ResumeData()
     created_at: datetime
     updated_at: datetime
