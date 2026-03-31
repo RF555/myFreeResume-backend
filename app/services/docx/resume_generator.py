@@ -11,19 +11,26 @@ from app.services.docx.styles import (
     add_section_header, add_contact_items, set_run_font,
 )
 
-SIDEBAR_SECTIONS = {"contact", "education", "skill_categories", "core_competencies", "skill_highlights"}
+SIDEBAR_SECTIONS = {"education", "skill_categories", "core_competencies", "skill_highlights"}
 
-DEFAULT_SIDEBAR_ORDER = ["contact", "education", "core_competencies", "skill_categories", "skill_highlights"]
-DEFAULT_MAIN_ORDER = ["summary", "experience", "custom_sections"]
+DEFAULT_SIDEBAR_ORDER = ["education", "core_competencies", "skill_categories", "skill_highlights"]
+DEFAULT_MAIN_ORDER = ["experience", "custom_sections"]
 
 
 def _ordered_sections(section_order: list[str], defaults: list[str], allowed: set[str]) -> list[str]:
     if not section_order:
-        return defaults
+        return list(defaults)
     ordered = [s for s in section_order if s in allowed]
-    for s in defaults:
+    # Insert missing sections at their default position
+    for i, s in enumerate(defaults):
         if s not in ordered:
-            ordered.append(s)
+            # Find the best insertion point based on default neighbors
+            insert_at = len(ordered)
+            for j in range(i - 1, -1, -1):
+                if defaults[j] in ordered:
+                    insert_at = ordered.index(defaults[j]) + 1
+                    break
+            ordered.insert(insert_at, s)
     return ordered
 
 
@@ -154,19 +161,20 @@ def generate_resume(
         if not p.text:
             p._element.getparent().remove(p._element)
 
-    # Sidebar sections
+    # Sidebar — contact always first
+    contact_dict = data.contact.model_dump() if data.contact else {}
+    if not hidden.get("contact") and any(contact_dict.values()):
+        add_section_header(sidebar, "Contact")
+        add_contact_items(sidebar, contact_dict)
+
     sidebar_order = _ordered_sections(
         section_order or [], DEFAULT_SIDEBAR_ORDER, SIDEBAR_SECTIONS,
     )
-    contact_dict = data.contact.model_dump() if data.contact else {}
 
     for section_id in sidebar_order:
         if hidden.get(section_id):
             continue
-        if section_id == "contact" and any(contact_dict.values()):
-            add_section_header(sidebar, "Contact")
-            add_contact_items(sidebar, contact_dict)
-        elif section_id == "education" and data.education:
+        if section_id == "education" and data.education:
             _add_education(sidebar, data.education)
         elif section_id == "skill_categories" and data.skill_categories:
             _add_skill_categories(sidebar, data.skill_categories)
@@ -175,17 +183,18 @@ def generate_resume(
         elif section_id == "skill_highlights" and (data.skill_highlights or data.languages):
             _add_skill_highlights(sidebar, data.skill_highlights, data.languages)
 
-    # Main sections
+    # Main sections — summary always first
+    if not hidden.get("summary") and data.summary:
+        _add_summary(main, data.summary)
+
     main_order = _ordered_sections(
-        section_order or [], DEFAULT_MAIN_ORDER, {"summary", "experience", "custom_sections"},
+        section_order or [], DEFAULT_MAIN_ORDER, {"experience", "custom_sections"},
     )
 
     for section_id in main_order:
         if hidden.get(section_id):
             continue
-        if section_id == "summary" and data.summary:
-            _add_summary(main, data.summary)
-        elif section_id == "experience" and data.experience:
+        if section_id == "experience" and data.experience:
             _add_experience(main, data.experience)
         elif section_id == "custom_sections" and data.custom_sections:
             _add_custom_sections(main, data.custom_sections)
