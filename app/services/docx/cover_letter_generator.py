@@ -59,13 +59,19 @@ def generate_cover_letter(
 
     # Sidebar: Date block
     if data.date:
+        from datetime import datetime as dt
+        try:
+            date_display = dt.strptime(data.date, "%Y-%m-%d").strftime("%B %d, %Y")
+        except ValueError:
+            date_display = data.date
+
         p = sidebar.add_paragraph()
         p.space_before = Pt(8)
         date_label = p.add_run("Date")
         set_run_font(date_label, BODY_FONT, BODY_SIZE, BODY_TEXT_COLOR, bold=True)
 
         p2 = sidebar.add_paragraph()
-        run = p2.add_run(data.date)
+        run = p2.add_run(date_display)
         set_run_font(run, BODY_FONT, BODY_SIZE, BODY_TEXT_COLOR)
 
     # Main: Salutation
