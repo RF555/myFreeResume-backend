@@ -31,12 +31,19 @@ class CustomSection(BaseModel):
     items: list[str] = []
 
 
+class SkillCategory(BaseModel):
+    name: str = Field(default="", max_length=200)
+    skills: list[str] = []
+
+
 class ResumeData(BaseModel):
     name: str = Field(default="", max_length=200)
     professional_title: str = Field(default="", max_length=200)
     summary: str = Field(default="", max_length=5000)
     contact: Contact = Contact()
     skill_highlights: list[str] = []
+    skill_categories: list[SkillCategory] = []
+    core_competencies: list[str] = []
     experience: list[ExperienceItem] = []
     education: list[EducationItem] = []
     languages: list[str] = []
@@ -47,7 +54,7 @@ class CoverLetterData(BaseModel):
     addressee_name: str = Field(default="", max_length=200)
     addressee_company: str = Field(default="", max_length=200)
     date: str = Field(default="", max_length=50)
-    subject: str = Field(default="", max_length=500)
+    salutation: str = Field(default="", max_length=500)
     body_paragraphs: list[str] = []
     closing: str = Field(default="", max_length=200)
 

@@ -19,7 +19,11 @@ async def download_resume(entry_id: str, user: dict = Depends(get_current_user))
     entry = await get_entry(db, str(user["_id"]), entry_id)
 
     resume_data = ResumeData(**entry["resume"])
-    docx_bytes = generate_resume(resume_data)
+    docx_bytes = generate_resume(
+        resume_data,
+        hidden_sections=entry.get("hidden_sections"),
+        section_order=entry.get("section_order"),
+    )
 
     filename = f"{resume_data.name or 'Resume'} - Resume.docx"
     return Response(

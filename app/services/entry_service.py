@@ -22,7 +22,7 @@ async def create_entry(db: AsyncDatabase, user_id: str, job_type_id: str, compan
         "resume": resume_data,
         "cover_letter": CoverLetterData().model_dump(),
         "hidden_sections": {},
-        "section_order": ["skill_highlights", "experience", "education", "languages"],
+        "section_order": ["education", "core_competencies", "skill_categories", "skill_highlights", "experience", "languages"],
         "created_at": now,
         "updated_at": now,
     }
