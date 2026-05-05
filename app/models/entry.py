@@ -1,6 +1,7 @@
 from datetime import datetime
+from typing import Any, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_serializer
 
 
 class Contact(BaseModel):
@@ -11,9 +12,21 @@ class Contact(BaseModel):
     location: str = Field(default="", max_length=200)
 
 
+class YearRange(BaseModel):
+    from_: int | None = Field(default=None, alias="from", ge=1900, le=2100)
+    to: int | Literal["Present"] | None = None
+
+    model_config = {"populate_by_name": True}
+
+    @model_serializer
+    def _serialize(self) -> dict[str, Any]:
+        return {"from": self.from_, "to": self.to}
+
+
 class ExperienceItem(BaseModel):
     company: str = Field(default="", max_length=200)
     role: str = Field(default="", max_length=200)
+    years: YearRange | None = None
     start_date: str = Field(default="", max_length=50)
     end_date: str = Field(default="", max_length=50)
     bullets: list[str] = []
@@ -22,6 +35,7 @@ class ExperienceItem(BaseModel):
 class EducationItem(BaseModel):
     institution: str = Field(default="", max_length=200)
     degree: str = Field(default="", max_length=200)
+    years: YearRange | None = None
     start_date: str = Field(default="", max_length=50)
     end_date: str = Field(default="", max_length=50)
 
