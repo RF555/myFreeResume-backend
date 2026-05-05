@@ -80,7 +80,7 @@ async def migrate():
         )
         print(f"Updated {result3.modified_count} user resume profiles")
 
-    client.close()
+    await client.close()
     print("Migration complete")
 
 

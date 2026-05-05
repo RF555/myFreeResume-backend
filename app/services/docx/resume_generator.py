@@ -3,7 +3,7 @@ import io
 from docx import Document
 from docx.shared import Pt
 
-from app.models.entry import ResumeData
+from app.models.entry import ResumeData, YearRange
 from app.services.docx.styles import (
     BODY_FONT, NAVY, BODY_TEXT_COLOR, ROLE_COLOR, PROFILE_COLOR,
     BODY_SIZE,
@@ -15,6 +15,23 @@ SIDEBAR_SECTIONS = {"education", "skill_categories", "core_competencies", "skill
 
 DEFAULT_SIDEBAR_ORDER = ["education", "core_competencies", "skill_categories", "skill_highlights"]
 DEFAULT_MAIN_ORDER = ["experience", "custom_sections"]
+
+
+def _format_year_range(years: YearRange | None, start_date: str = "", end_date: str = "") -> str:
+    if years is not None:
+        from_ = years.from_
+        to = years.to
+        if from_ is None and to is None:
+            pass
+        elif from_ is not None and to is None:
+            return str(from_)
+        elif from_ is None and to is not None:
+            return str(to)
+        else:
+            return f"{from_} – {to}"
+    if start_date and end_date:
+        return f"{start_date} – {end_date}"
+    return start_date or end_date or ""
 
 
 def _ordered_sections(section_order: list[str], defaults: list[str], allowed: set[str]) -> list[str]:
@@ -44,8 +61,9 @@ def _add_education(cell, education):
         rest = ""
         if edu.institution:
             rest += f" | {edu.institution}"
-        if edu.end_date:
-            rest += f", {edu.end_date}"
+        year_text = _format_year_range(edu.years, edu.start_date, edu.end_date)
+        if year_text:
+            rest += f", {year_text}"
         if rest:
             run = p.add_run(rest)
             set_run_font(run, BODY_FONT, BODY_SIZE, BODY_TEXT_COLOR)
@@ -106,13 +124,7 @@ def _add_experience(cell, experience):
         rest_parts = []
         if exp.company:
             rest_parts.append(exp.company)
-        date_str = ""
-        if exp.start_date and exp.end_date:
-            date_str = f"{exp.start_date} – {exp.end_date}"
-        elif exp.start_date:
-            date_str = exp.start_date
-        elif exp.end_date:
-            date_str = exp.end_date
+        date_str = _format_year_range(exp.years, exp.start_date, exp.end_date)
         if date_str:
             rest_parts.append(date_str)
         if rest_parts:
