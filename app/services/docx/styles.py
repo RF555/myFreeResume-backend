@@ -156,7 +156,7 @@ def add_header_band(doc, name: str, professional_title: str):
 
     name_p = cell.paragraphs[0]
     name_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    name_run = name_p.add_run(name.upper())
+    name_run = name_p.add_run(name)
     set_run_font(name_run, HEADING_FONT, NAME_SIZE, WHITE)
     name_p.space_after = Pt(2)
 
